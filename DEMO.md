@@ -1,13 +1,11 @@
-# Demo click-path (3 minutes)
+# Demo click-path
 
-Use this exact order so the video is repeatable.
+The screen already tells the story. Do not hunt through menus.
 
-1. Open the app. Click **Load sample dataset**. Point at duplicate `1001`, bad amount `not-a-number`, and the empty row.
-2. Leave the default cleaning goal. Click **Run pipeline**.
-3. Show the three proposed strategies.
-4. Scroll the **Cost ranking** table. Say: cost is seconds times a memory factor; failures are penalized.
-5. Open one round-1 failure and its stderr, then the matching **(healed)** round-2 success. Say the repair used the real sandbox error, not a second guess.
-6. Read the recommendation line (lowest successful cost).
-7. Click **Force containment demo**. Wait until the banner says blast radius = zero. Show `timed_out: true`.
+1. Open the app. The October-close sentence and the messy orders table are already on screen. Point at duplicate `1001`, `not-a-number`, and the blank row.
+2. Click **Run judge demo**. Wait.
+3. Left column is the failed code and the real stderr (`KeyError`). Right column is the repaired code and the successful output. Say: the second version was written from that error, then run again in a new sandbox.
+4. Show the cost table and read the green recommendation line.
+5. Stay on section 3 until the banner says the infinite loop was killed and the app is still here.
 
-Do not skip step 7. Judges require one containment moment on camera.
+That is the whole video. Sections 3 and 5 are the two moments other submissions skip.
