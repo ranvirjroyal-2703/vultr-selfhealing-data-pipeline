@@ -1,47 +1,37 @@
-# Self-Healing + Cost-Aware Data Pipeline
+# October close cleaner
 
-**Vultr Agent Rush Hackathon — Blast Radius Zero**
+**Vultr Agent Rush — Blast Radius Zero**
 
-Autonomous data cleaning agent that proposes multiple strategies, executes them inside hard-limited Docker sandboxes, repairs failures from the real stderr, and ranks survivors by cost.
+Finance has one messy October export. The agent proposes cleans, runs each inside a Docker sandbox, and when the first guess uses columns that do not exist, it repairs the code from the real stderr and runs it again. Survivors are ranked by cost. The same sandbox is then shown killing an infinite loop.
 
-## Key features
-- Multi-strategy generation via Vultr Serverless Inference
-- Isolated Docker sandboxes (memory, CPU, timeout, no network, non-root)
-- Self-healing: a failed run is repaired once from the sandbox error and executed again
-- Explicit cost: `seconds × (memory_mb / 256)`. Failures are penalized. Lowest successful cost wins
-- Sample dataset at `data/messy_orders.csv` and a fixed click-path in `DEMO.md`
-- One-click containment demo (infinite loop killed by the sandbox)
+## What the demo shows, in order
+1. A planted bad strategy fails with a real `KeyError`.
+2. Vultr Inference rewrites that code from the stderr. The second sandbox run is on screen next to the first.
+3. A cost table picks the cheapest successful clean.
+4. An infinite loop is killed by the sandbox while the app stays up.
 
-## Local run
+One button does all four: **Run judge demo**. Click-path: [DEMO.md](DEMO.md).
+
+## Run locally
 ```bash
-python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
+docker build -t data-pipeline-sandbox -f sandbox/Dockerfile sandbox
 export VULTR_INFERENCE_API_KEY=your_key
 streamlit run app.py
 ```
 
-## Vultr deployment
-1. Create a Vultr Compute Instance (Ubuntu) and install Docker.
-2. Claim the $200 hackathon credits at kickoff.
-3. Clone this repo on the VM.
-4. Build and run (mount the Docker socket so sandboxes can launch):
+## Deploy on a Vultr VM
+Install Docker, claim the $200 credits, clone the repo, then:
+
 ```bash
-docker build -t data-pipeline .
-docker run -d \
-  -p 8501:8501 \
-  -e VULTR_INFERENCE_API_KEY=your_key \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  data-pipeline
+./deploy.sh YOUR_VULTR_INFERENCE_API_KEY
 ```
-5. Open `http://YOUR_VM_IP:8501`
 
-## Architecture
-- **Vultr VM**: hosts the Streamlit app
-- **Vultr Serverless Inference**: strategy generation and the heal step
-- **Docker sandboxes**: isolation, resource limits, auto-remove, no secrets inside the sandbox
-- **Containment proof**: forced demo button, required on camera
+That builds the sandbox image and the app, and prints the public URL.
 
-Record the video by following [DEMO.md](DEMO.md).
+## What runs where
+- Vultr VM: the Streamlit app
+- Vultr Serverless Inference: strategy ideas and the heal step
+- `data-pipeline-sandbox` container: untrusted code, no network, memory and CPU caps, non-root, removed after each run
 
-## License
-MIT
+MIT License
