@@ -2,38 +2,50 @@
 
 **Vultr Agent Rush Hackathon — Blast Radius Zero**
 
-An autonomous data cleaning agent that proposes multiple strategies, executes them in isolated sandboxes with resource limits, measures real outcomes (success, time, memory), selects the best path, and self-heals on failure. Every run produces a clear containment proof.
+Autonomous data cleaning agent that proposes multiple strategies, executes them inside hard-limited Docker sandboxes, measures real outcomes, selects the best path, and self-heals. Every run can demonstrate blast-radius-zero containment.
 
-## Why this project
-- Real multi-strategy execution inside hard-limited sandboxes
-- Visible self-healing loop driven by actual runtime results
-- Cost-aware selection (time + memory + success)
-- Clear “blast radius zero” moment for the demo video
-- Production-style web UI
+## Key Features
+- Multi-strategy generation via Vultr Serverless Inference
+- Isolated Docker sandboxes (memory, CPU, timeout, no network, non-root)
+- Metrics dashboard (success, duration, containment events)
+- One-click forced containment demo (infinite loop killed by sandbox)
+- Clean Streamlit UI ready for public demo
 
-## Architecture
-- **Orchestrator** (runs on Vultr VM): plans strategies, dispatches to sandboxes, collects metrics, decides next action
-- **Sandbox Runner**: Docker containers with CPU/memory/time limits, no network, non-root, auto-remove
-- **LLM**: Vultr Serverless Inference (`https://api.vultrinference.com/v1`)
-- **UI**: Streamlit web application
-
-## Setup (local development)
+## Local Run
 ```bash
-python -m venv venv
-source venv/bin/activate
+python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 export VULTR_INFERENCE_API_KEY=your_key
 streamlit run app.py
 ```
 
-## Vultr Deployment Notes
-- Deploy the Streamlit/FastAPI app on a Vultr Compute Instance (VM)
-- All LLM calls go through Vultr Serverless Inference
-- Sandboxes run as Docker containers on the same VM (or throwaway instances)
-- Document resource limits and lifecycle in the final README
+## Vultr Deployment (recommended)
+1. Create a Vultr Compute Instance (Ubuntu) and install Docker.
+2. Claim $200 hackathon credits.
+3. Clone this repo on the VM.
+4. Build and run (mount Docker socket so sandboxes can launch):
+```bash
+docker build -t data-pipeline .
+docker run -d \
+  -p 8501:8501 \
+  -e VULTR_INFERENCE_API_KEY=your_key \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  data-pipeline
+```
+5. Open `http://YOUR_VM_IP:8501`
 
-## Demo Video Requirements
-Must show at least one containment moment (infinite loop or destructive command killed by the sandbox while other strategies continue).
+## Architecture Mapping to Hackathon Rules
+- **Vultr VM**: Hosts the Streamlit app (central control plane)
+- **Vultr Serverless Inference**: All LLM strategy generation
+- **Docker sandboxes**: Process isolation, resource limits, lifecycle (auto-remove), secret hygiene
+- **Containment proof**: Visible in UI + forced demo button
+
+## Demo Video Checklist
+- Show strategy generation
+- Show multiple strategies executing
+- Show metrics dashboard
+- Click “Force Containment Demo” and show the sandbox killing the infinite loop
+- Highlight blast radius = zero
 
 ## License
 MIT
